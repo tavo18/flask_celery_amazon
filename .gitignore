@@ -3,4 +3,5 @@ __pycache
 .DS_Store
 /venv
 /project/files
+/project/logs
 tasks_tracker.db
