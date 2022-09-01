@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import math
 import random
 from .get_proxies import get_proxies
+import re
 
 s = requests.session()
 
@@ -70,15 +71,17 @@ def scrape_reviews(asins: list):
         soup = page_request(1, asin)
 
         total_reviews = soup.find('div', attrs={'data-hook':'cr-filter-info-section'}).text.strip()
-        total_reviews = total_reviews.split('|')[1].strip().split(' ')[0].strip().replace(',','')
+        match = re.search(r'.* total ratings, (?P<total_reviews>.*) with reviews',  total_reviews)
+        if match:
+            total_reviews = match.group('total_reviews').replace(',','')
 
-        pages = math.ceil(float(total_reviews)/10)
+            pages = math.ceil(float(total_reviews)/10)
 
-        for page in range(1,pages+1)[:500]:
+            for page in range(1,pages+1)[:500]:
 
-            if page != 1:
-                soup = page_request(page, asin)
+                if page != 1:
+                    soup = page_request(page, asin)
 
-            with open('project/files/amazon/raw_data/{}_{}.html'.format(asin, page), 'w', encoding='utf8') as f:
-                f.write(soup.prettify())
-                print("FILE CREATED")
+                with open('project/files/amazon/raw_data/{}_{}.html'.format(asin, page), 'w', encoding='utf8') as f:
+                    f.write(soup.prettify())
+                    print("FILE CREATED")
