@@ -1,0 +1,46 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+<div class="starter-template">
+  <h1>Reviews Scraper</h1>
+  <hr><br>
+  <div>
+    <h3>Amazon</h3>
+    <p>Fill out the box with the desired Amazon product's links. Invalid URLs won't be processed</p>
+  </div>
+  
+  <form action="{{ url_for('main.run_scrape_amazon') }}" method="post">
+    <div class="form-group">
+      <label for="amazon_links">Amazon URLs</label>
+      <textarea class="form-control" id="amazon_links" name="amazon_links" rows="3"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Scrape reviews</button>
+  </form>
+
+  <br><br>
+  <div>
+    <h3>Scraping Tasks</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="tasks">
+        {% for task in tasks[:5] %}
+        <tr>
+          <td>{{ task['task_id'][:5] }}</td>
+          <td>{{ task['status'] }}</td>
+          <td>{{ task['date_done'] }}</td>
+          
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

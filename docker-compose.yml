@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+
+  web:
+    build: .
+    image: web
+    container_name: web
+    ports:
+      - 5004:5000
+    command: python manage.py run -h 0.0.0.0
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=project.server.config.DevelopmentConfig
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=db+sqlite:///celery.db
+    depends_on:
+      - redis
+      - sqlite3
+
+  worker:
+    build: .
+    command: celery worker --app=project.server.tasks.celery --loglevel=info --logfile=project/logs/celery.log
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=project.server.config.DevelopmentConfig
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=db+sqlite:///celery.db
+    depends_on:
+      - web
+      - redis
+      - sqlite3
+
+
+  redis:
+    image: redis:6-alpine
+
+  sqlite3:
+    image: nouchka/sqlite3:latest
+    command: sqlite3 celery.db
